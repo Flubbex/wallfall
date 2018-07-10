@@ -157,7 +157,7 @@ function Paper(props,state){
   
   var chunk     = chunks[chunkid],
       papers    = chunk.map((node,key)=> <ImageTile key={key} 
-                                                    src={'/wallpaper/'+category+'/'+node.name} 
+                                                    src={process.env.PUBLIC_URL+'/wallpaper/'+category+'/'+node.name} 
                                                     to={'/'+category+'/'+chunkid+'/'+node.name}
                                                     alt={node.name} 
                                                     name={node.name} />),
@@ -251,7 +251,7 @@ function Lightbox(props){
                   <figure className="image">
                     <a href={'/wallpaper/'+props.params.category+'/'+props.params.name}
                           download>
-                    <img src={'/wallpaper/'+props.params.category+'/'+props.params.name}
+                    <img src={process.env.PUBLIC_URL+'/wallpaper/'+props.params.category+'/'+props.params.name}
                          alt={props.params.name}/> 
                     </a>
                   </figure>
