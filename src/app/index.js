@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import { BrowserRouter, Route, Link,NavLink, Redirect} from 'react-router-dom'
 import pathToRegexp from 'path-to-regexp'
 
+/*
 function Item(props){
   return (<NavLink to={props.to}>
             {props.label}
@@ -30,15 +31,61 @@ function AppMenu(props) {
             <ul>{menucontent}</ul>
           </aside>)
 }
+*/
+
+function publicUrl(){
+  var path = [].slice.call(arguments).join('/')
+  return ((process.env.PUBLIC_URL === '' ? '/' : process.env.PUBLIC_URL+'/')+path).replace('//','/')
+}
+
+function ImagePreview(props){
+  return (<figure className="image is-128x128 is-marginless is-paddingless">
+            <img alt={props.name} src={props.src} />
+          </figure>)
+}
+
+function PreviewSet(props){
+  var amount = props.amount || 5
+  
+  window.butt = props.listing
+  
+  return Object.keys(props.listing)
+                    .map((name,key)=>(
+                      <div key={key} className="card">
+                        <Link to={'/'+name}>
+                          <h3 className="is-size-3 has-text-centered">
+                            {name}
+                          </h3>
+                        </Link>
+                        <div className="level is-mobile" style={{overflowX:'auto'}}>
+                          {Object.values(props.listing[name])
+                            .slice(
+                                Math.floor(Math.random()*Object.keys(props.listing[name]).length)-amount
+                                )
+                            .slice(0,amount)
+                            .map(
+                            (src,key)=>( <div className="level-item" key={key}>
+                                            <ImagePreview 
+                                                  name={props.name} 
+                                                  src={ publicUrl('wallpaper',src) } 
+                                                  />
+                                          </div>)
+                          )}
+                        </div>
+                      </div>))
+}
 
 function Home(props){
-  var total = props.listing.children.reduce((acc,child)=>acc+=child.children.length,0)
-  
-  return (<div>
-          <h2 className="is-size-2">Wallfall</h2>
-            <p>
-              Total of {total} wallpapers in {props.listing.children.length} sets.
-            </p>
+  var total = Object.values(props.listing).reduce((acc,collection)=>acc+=collection.length,0)
+
+  return (<div className="container">
+            <h2 className="is-size-2">Wallfall</h2>
+              <p>
+                Total of {total} wallpapers in {Object.keys(props.listing).length} collection(s).
+              </p>
+              <div>
+                <PreviewSet listing={props.listing}/>
+              </div>
           </div>)
                 
 }
@@ -129,10 +176,9 @@ function Pagination(props){
 
 function Paper(props,state){
   var category  = props.params.category,
-      child     = props.listing.children.filter((child)=>child.name===category)[0],
-      list      = child ? child.children : []
+      list      = props.listing[category]
   
-  if (!child)
+  if (!list)
     return (<div>
                 <h3 className="is-size-4">404</h3>
                 <p>
@@ -157,10 +203,10 @@ function Paper(props,state){
   
   var chunk     = chunks[chunkid],
       papers    = chunk.map((node,key)=> <ImageTile key={key} 
-                                                    src={process.env.PUBLIC_URL+'/wallpaper/'+category+'/'+node.name} 
-                                                    to={'/'+category+'/'+chunkid+'/'+node.name}
-                                                    alt={node.name} 
-                                                    name={node.name} />),
+                                                    src={publicUrl('wallpaper',node) } 
+                                                    to={'/'+category+'/'+chunkid+'/'+node.split('/')[1] }
+                                                    alt={node} 
+                                                    name={node} />),
       
       contents  = (<Fragment>
                     <Pagination index={chunkid} max={Math.floor(list.length/maxtiles) } />
@@ -189,11 +235,11 @@ function Paper(props,state){
 }
 
 function NavMenu(props){
-  var menucontent = props.listing.children.map((child)=>(
-    <div className="navbar-item" key={child.name}>
-      <NavLink to={'/'+child.name+'/'}
+  var menucontent = Object.keys(props.listing).map((name)=>(
+    <div className="navbar-item" key={name}>
+      <NavLink to={'/'+name+'/'}
         onClick={(e)=> e.target.parentNode.parentNode.parentNode.classList.toggle('is-active')}
-      >{child.name}</NavLink>
+      >{name}</NavLink>
     </div>
   ))
   
@@ -246,16 +292,14 @@ function Hero(props){
 function Lightbox(props){
   return (<div className="modal is-active">
             <div className="modal-background"></div>
-              <div className="modal-content">
-                <div className="card is-paddingless">
+              <div className="modal-content tile section">
                   <figure className="image">
-                    <a href={'/wallpaper/'+props.params.category+'/'+props.params.name}
+                    <a href={publicUrl('wallpaper',props.params.category,props.params.name)}
                           download>
-                    <img src={process.env.PUBLIC_URL+'/wallpaper/'+props.params.category+'/'+props.params.name}
+                    <img src={publicUrl('wallpaper',props.params.category,props.params.name)}
                          alt={props.params.name}/> 
                     </a>
                   </figure>
-                </div>
              </div>
             <button className="modal-close is-large" aria-label="close"
                     onClick={(e)=>e.target.parentNode.classList.remove('is-active')}></button>
@@ -280,6 +324,7 @@ function Container (props){
   return (<Fragment>
               <Hero listing={props.listing} />
               <div className="section" style={{paddingTop:'.5rem'}}>
+              
                 <Route exact path="/" 
                       component={ ()=> ( <Home  listing={props.listing} /> )} />
                 
@@ -291,7 +336,9 @@ function Container (props){
                 
                 <RedirectWithParams exact 
                       from="/:category" 
-                      to="/:category/0"/>
+                      to="/:category/0" />
+                
+                
               </div>
           </Fragment>)
 }
