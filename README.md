@@ -5,12 +5,17 @@ Comes with a bunch of neat wallpapers too.
 
 ## Usage
 ```
-npm run update                    Updates wallpaper listing
+npm run pack                      Updates wallpaper listing
 npm run build                     Builds your album
+npm run deploy                    Publishes your album to gh-pages
 ```
 
 ## Credits
 ### Wallpapers
-- imgur 
-  - [Ripeaches](https://www.reddit.com/user/ripeaches) - [Wallpapers (421)](https://imgur.com/gallery/NeMLf) 
-  - [Ph0ar](https://www.reddit.com/user/ph0ar)  [Show us yer (wall)papers (135)](http://imgur.com/a/T0WqN)
+- random
+  - [Wallpapers (400+)](https://imgur.com/gallery/NeMLf) by Ripeaches
+  - [Show us yer (wall)papers](http://imgur.com/a/T0WqN) by Ph0ar
+### Others
+- Application backdrops
+    - [White Wall](https://www.toptal.com/designers/subtlepatterns/white-wall-3/) by Viahorizon
+  

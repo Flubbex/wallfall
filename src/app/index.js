@@ -119,18 +119,18 @@ function Pagination(props){
   
   return (<div className="pagination" role="navigation" aria-label="pagination">
             
-            {props.index > 0 ? <Link to={(props.index-1).toString()} className="pagination-previous">Previous</Link>:null}
+            {props.index > 1 ? <Link to={'/'+props.category+'/'+(props.index-1)} className="pagination-previous" >Previous</Link>:null}
             
-            {props.index < props.max ? < Link to={(props.index+1).toString()} className="pagination-next">Next page</Link>:null}
+            {props.index < props.max ? < Link to={'/'+props.category+'/'+(props.index+1)} className="pagination-next">Next page</Link>:null}
             
             <ul className="pagination-list">
             {props.index!==0
               ? ( <Fragment>
                     <li>
-                      <Link to='0' 
-                            className="pagination-link" 
-                            aria-label={"Goto page 0"}>
-                            0
+                        <Link to={'/'+props.category+'/1'} 
+                            className={props.index===0?"pagination-link is-current":"pagination-link"}
+                            aria-label={"Goto page 1"}>
+                            1
                       </Link>
                     </li>
                     <li>
@@ -139,29 +139,28 @@ function Pagination(props){
                    </Fragment> )
               : (null) }
                     
-              {new Array(maxsteps).fill(0).map((zero,index)=>
-                
-                index - stepratio + props.index >= 0 &&
+              {new Array(maxsteps+1).fill(0).map((zero,index)=>
+                index - stepratio + props.index >= 1 &&
                 index - stepratio + props.index <= props.max
                 
                 ? (<li key={index}>
-                  <NavLink className={(index-stepratio+props.index)===props.index?"pagination-link is-current":"pagination-link"}
+                  <NavLink className={(index-stepratio+props.index-1)===props.index?"pagination-link is-current":"pagination-link"}
                             aria-label={"Goto page "+(index -stepratio + props.index)} 
-                            to={(index - stepratio + props.index).toString()}>
+                            to={'/'+props.category+'/'+(index - stepratio + props.index)}>
                             {index - stepratio  + props.index}
                   </NavLink>
                 </li>)
                 : ( null )
                 )}
                 
-              {props.index!==props.max
+              {props.index+1!==props.max
               ? ( <Fragment>
                   <li>
                     <span className="pagination-ellipsis">&hellip;</span>
                   </li>
                   <li>
                     <Link to={props.max.toString()} 
-                      className="pagination-link" 
+                      className={props.index===props.max?"pagination-link is-current":"pagination-link"}
                       aria-label={"Goto page "+props.max}>
                       {props.max}
                     </Link>
@@ -193,7 +192,7 @@ function Paper(props,state){
   
   var maxtiles  = 25,
       maxwidth  = 5,
-      chunkid   = props.params.page ? parseInt(props.params.page,10) : 0,
+      chunkid   = props.params.page ? parseInt(props.params.page,10)-1 : 1,
       chunks    = chunkify(list,maxtiles)
       
   if (chunkid >= chunks.length || chunkid < 0)
@@ -204,12 +203,12 @@ function Paper(props,state){
   var chunk     = chunks[chunkid],
       papers    = chunk.map((node,key)=> <ImageTile key={key} 
                                                     src={publicUrl('wallpaper',node) } 
-                                                    to={'/'+category+'/'+chunkid+'/'+node.split('/')[1] }
+                                                    to={'/'+category+'/'+(chunkid+1)+'/'+node.split('/')[1] }
                                                     alt={node} 
                                                     name={node} />),
       
       contents  = (<Fragment>
-                    <Pagination index={chunkid} max={Math.floor(list.length/maxtiles) } />
+                    <Pagination index={chunkid} max={Math.ceil(list.length/maxtiles) } category={category}/>
                     <div className="tile is-ancestor is-vertical">
                       {
                         chunkify(papers,maxwidth)
@@ -225,10 +224,8 @@ function Paper(props,state){
                 
   return (<div>
           <h2 className="is-size-2">{category}</h2>
-            <p>
-              Total of {list.length} wallpapers in set.
-            </p>
-
+            <p> Total of {list.length} wallpapers in set</p>
+            <p> Showing wallpapers {25*(chunkid)} through {25*(chunkid)+25} </p>
             {contents}
           
         </div>)
@@ -292,7 +289,7 @@ function Hero(props){
 function Lightbox(props){
   return (<div className="modal is-active">
             <div className="modal-background"></div>
-              <div className="modal-content tile section">
+              <div className="modal-content">
                   <figure className="image">
                     <a href={publicUrl('wallpaper',props.params.category,props.params.name)}
                           download>
@@ -336,7 +333,7 @@ function Container (props){
                 
                 <RedirectWithParams exact 
                       from="/:category" 
-                      to="/:category/0" />
+                      to="/:category/1" />
                 
                 
               </div>
